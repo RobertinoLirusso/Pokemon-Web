@@ -98,10 +98,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "pokemon-web:build:production"
+              "buildTarget": "pokemon-web:build:production"
             },
             "development": {
-              "browserTarget": "pokemon-web:build:development"
+              "buildTarget": "pokemon-web:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -109,7 +109,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "pokemon-web:build"
+            "buildTarget": "pokemon-web:build"
           }
         },
         "test": {
