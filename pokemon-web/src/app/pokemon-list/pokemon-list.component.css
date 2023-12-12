@@ -1,0 +1,25 @@
+.custom-header {
+    color: white;
+    text-transform: uppercase;
+  }
+
+.custom-card-content {
+    color: white;
+    font-size: 18px; 
+}
+
+
+.custom-ion-item {
+    color: white;
+    font-size: 18px; 
+}
+
+.white-background {
+    --ion-background-color: rgb(2, 0, 0);
+}
+
+.custom-title {
+    font-family: Arial, sans-serif;
+    text-transform: uppercase; 
+}
+

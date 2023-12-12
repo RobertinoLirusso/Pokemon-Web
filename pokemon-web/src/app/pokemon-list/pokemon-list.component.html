@@ -1,23 +1,28 @@
-<ion-content>
-  <ion-card *ngFor="let pokemon of displayedPokemonList">
-    <ion-card-header>
-      <ion-card-title>{{ pokemon.name }}</ion-card-title>
-    </ion-card-header>
+<ion-content class="white-background">
+  <ion-toolbar class="custom-title">
+    <ion-title>Pokemons List</ion-title>
+  </ion-toolbar>
+  <ion-row>
+    <ion-col size="6" *ngFor="let pokemon of displayedPokemonList">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title class="custom-header">{{ pokemon.name }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content class="custom-card-content">
+          <p>Experience: {{ pokemon.experience }}</p>
+          <p>Height: {{ pokemon.height }}</p>
+          <p>Weight: {{ pokemon.weight }}</p>
+          <p>Abilities:</p>
+          <ion-list>
+            <ion-item *ngFor="let ability of pokemon.abilities" lines="none" class="custom-ion-item">
+              {{ ability.ability.name }}
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+  </ion-row>
 
-    <ion-card-content>
-      <p>Experiencia: {{ pokemon.experience }}</p>
-      <p>Altura: {{ pokemon.height }}</p>
-      <p>Peso: {{ pokemon.weight }}</p>
-      <p>Habilidades:</p>
-      <ion-list>
-        <ion-item *ngFor="let ability of pokemon.abilities" lines="none">
-          {{ ability.ability.name }}
-        </ion-item>
-      </ion-list>
-    </ion-card-content>
-  </ion-card>
-
-  <!-- IonRefresher para la actualización con deslizamiento -->
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)" #refresher>
     <ion-refresher-content pullingIcon="arrow-down-outline" pullingText="Desliza para actualizar"></ion-refresher-content>
   </ion-refresher>
@@ -26,4 +31,10 @@
     <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Cargando más...">
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="scrollToTop()">
+      <ion-icon name="arrow-up"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

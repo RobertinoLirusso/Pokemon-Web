@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { IonContent } from '@ionic/angular';
 import { PokemonService } from './pokemon.service';
 
 interface Pokemon {
@@ -15,8 +16,11 @@ interface Pokemon {
   styleUrls: ['./pokemon-list.component.css']
 })
 export class PokemonListComponent implements OnInit {
-  pokemonList: Pokemon[] = [];
+  pokemonList: any[] = [];
   displayedPokemonList: Pokemon[] = [];
+  offset = 0;
+  limit = 10;
+  @ViewChild(IonContent) content!: IonContent;
 
   constructor(private pokemonService: PokemonService) {}
 
@@ -27,28 +31,9 @@ export class PokemonListComponent implements OnInit {
   getPokemon(): void {
     this.pokemonService.getAllPokemon().subscribe(
       (data: any) => {
-        this.pokemonList = data.results;
-
-        // Para cada Pokémon en la lista, obtén los detalles individuales
-        this.pokemonList.forEach((pokemon: any) => {
-          this.pokemonService.getPokemonDetails(pokemon.url).subscribe(
-            (details: any) => {
-              // Crear un objeto con todos los datos del Pokémon
-              const fullPokemonData: Pokemon = {
-                name: details.name,
-                experience: details.base_experience,
-                height: details.height,
-                weight: details.weight,
-                abilities: details.abilities.map((ability: any) => ({ ability: { name: ability.ability.name } }))
-              };
-              // Agregar el Pokémon con todos los detalles a la lista
-              this.displayedPokemonList.push(fullPokemonData);
-            },
-            (error) => {
-              console.error('Error fetching Pokémon details:', error);
-            }
-          );
-        });
+        this.pokemonList = data.results.slice(0, this.limit);
+        this.offset = this.limit;
+        this.loadPokemonDetails(this.pokemonList);
       },
       (error) => {
         console.error('Error fetching Pokémon:', error);
@@ -57,46 +42,54 @@ export class PokemonListComponent implements OnInit {
   }
 
   loadMoreData(event: any): void {
-    setTimeout(() => {
-      const currentLength = this.displayedPokemonList.length;
-      const newData = this.pokemonList.slice(currentLength, currentLength + 10);
-  
-      newData.forEach((pokemon: any) => {
-        this.pokemonService.getPokemonDetails(pokemon.url).subscribe(
-          (details: any) => {
-            const fullPokemonData: Pokemon = {
-              name: details.name,
-              experience: details.base_experience,
-              height: details.height,
-              weight: details.weight,
-              abilities: details.abilities.map((ability: any) => ({ ability: { name: ability.ability.name } }))
-            };
-            this.displayedPokemonList.push(fullPokemonData);
-          },
-          (error) => {
-            console.error('Error fetching Pokémon details:', error);
-          }
-        );
-      });
-  
-      event.target.complete();
-  
-      if (this.displayedPokemonList.length === this.pokemonList.length) {
-        event.target.disabled = true;
+    this.pokemonService.getAllPokemon().subscribe(
+      (data: any) => {
+        const additionalPokemon = data.results.slice(this.offset, this.offset + this.limit);
+        this.offset += this.limit;
+
+        if (additionalPokemon.length === 0) {
+          event.target.disabled = true;
+        }
+
+        this.loadPokemonDetails(additionalPokemon);
+        event.target.complete();
+      },
+      (error) => {
+        console.error('Error fetching additional Pokémon:', error);
+        event.target.complete();
       }
-    }, 1000);
+    );
   }
 
+  loadPokemonDetails(pokemonArray: any[]): void {
+    pokemonArray.forEach((pokemon: any) => {
+      this.pokemonService.getPokemonDetails(pokemon.url).subscribe(
+        (details: any) => {
+          const fullPokemonData: Pokemon = {
+            name: details.name,
+            experience: details.base_experience,
+            height: details.height,
+            weight: details.weight,
+            abilities: details.abilities.map((ability: any) => ({ ability: { name: ability.ability.name } }))
+          };
+          this.displayedPokemonList.push(fullPokemonData);
+        },
+        (error) => {
+          console.error('Error fetching Pokémon details:', error);
+        }
+      );
+    });
+  }
+  
   doRefresh(event: any): void {
-    // Limpia la lista de Pokémon mostrados antes de cargar nuevos datos
     this.displayedPokemonList = [];
-
-    // Vuelve a obtener los datos (igual que en getPokemon())
     this.getPokemon();
-
-    // Completa el evento de actualización
     setTimeout(() => {
       event.target.complete();
-    }, 2000); // Simulando un tiempo de actualización de 2 segundos (ajusta según necesites)
+    }, 2000);
+  }
+
+  scrollToTop() {
+    this.content.scrollToTop(1500);
   }
 }
